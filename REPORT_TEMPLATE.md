@@ -2,11 +2,11 @@
 
 ## 1. Thông tin sinh viên
 
-- Họ tên:
-- Mã sinh viên:
-- Lớp:
-- Link GitHub repo:
-- Link W&B run/project:
+- Họ tên:Ngô Nguyễn Quang Linh
+- Mã sinh viên:1671040018
+- Lớp:KHMT 16-01
+- Link GitHub repo:https://github.com/FIT-DNU-CS-16-01/csc4005-lab3-1dcnn-Macchiato285
+- Link W&B run/project:https://wandb.ai/ngoquanglinh2853-none/csc4005-lab3-urbansound-1dcnn?nw=nwuserngoquanglinh2853
 
 ---
 
@@ -26,12 +26,22 @@ Mô tả ngắn gọn mục tiêu của lab:
 
 ### 3.1. Dataset
 
-- Dataset:
-- Số lớp:
+- Dataset: UrbanSound8K
+- Số lớp: 10
 - Các lớp:
-- Fold dùng để train:
-- Fold dùng để validation:
-- Fold dùng để test:
+    air_conditioner
+    car_horn
+    children_playing
+    dog_bark
+    drilling
+    engine_idling
+    gun_shot
+    jackhammer
+    siren
+    street_music
+- Fold dùng để train: fold1 → fold8
+- Fold dùng để validation: fold9
+- Fold dùng để test: fold10
 
 ### 3.2. Tiền xử lý audio
 
@@ -39,17 +49,17 @@ Mô tả ngắn gọn mục tiêu của lab:
 
 | Thành phần | Giá trị |
 |---|---|
-| Sample rate |  |
-| Duration |  |
-| Feature type |  |
-| n_mfcc / n_mels |  |
-| n_fft |  |
-| hop_length |  |
-| Augmentation |  |
+| Sample rate | 16000 |
+| Duration | 4.0 |
+| Feature type | MFCC  |
+| n_mfcc / n_mels | 40 |
+| n_fft | 1024 |
+| hop_length | 512 |
+| Augmentation | Có augmentation nhẹ |
 
 Giải thích ngắn: vì sao cần đưa audio về cùng sample rate và cùng độ dài?
 
----
+- Trong bài toán audio classification, các file âm thanh thường có sample rate và độ dài khác nhau. Vì vậy cần chuẩn hóa toàn bộ audio về cùng sample rate để dữ liệu đồng nhất và mô hình học ổn định hơn. Ngoài ra, việc pad/crop audio về cùng độ dài giúp tất cả input có cùng shape trước khi đưa vào Conv1D.
 
 ## 4. Mô hình 1D-CNN
 
@@ -69,15 +79,15 @@ Bảng cấu hình:
 
 | Thành phần | Giá trị |
 |---|---|
-| model_name |  |
-| hidden_channels |  |
-| dropout |  |
-| optimizer |  |
-| learning rate |  |
-| weight decay |  |
-| batch size |  |
-| epochs |  |
-| patience |  |
+| model_name | mfcc_1dcnn |
+| hidden_channels | 64 |
+| dropout | 0.3 |
+| optimizer | AdamW |
+| learning rate | 0.001 |
+| weight decay | 0.0001 |
+| batch size | 32 |
+| epochs | 3 |
+| patience | 3 |
 
 ---
 
@@ -87,11 +97,11 @@ Bảng cấu hình:
 
 | Metric | Giá trị |
 |---|---:|
-| Best validation accuracy |  |
-| Test accuracy |  |
-| Average epoch time |  |
-| Total parameters |  |
-| Trainable parameters |  |
+| Best validation accuracy | 0.305 |
+| Test accuracy | Chưa chạy baseline đầy đủ |
+| Average epoch time | Khoảng vài giây / epoch |
+| Total parameters | ~77,000 |
+| Trainable parameters | ~77,000 |
 
 ### 5.2. Learning curves
 
@@ -99,9 +109,10 @@ Chèn hình `curves.png`.
 
 Nhận xét:
 
-- Train loss/val loss có giảm đều không?
-- Có dấu hiệu overfitting không?
-- Early stopping có xảy ra không?
+- Train loss và validation loss đều giảm theo epoch.
+- Train accuracy và validation accuracy tăng dần trong quá trình huấn luyện.
+- Chưa xuất hiện dấu hiệu overfitting rõ rệt vì train_acc và val_acc vẫn tăng cùng nhau.
+- Early stopping chưa xảy ra do mới chạy cấu hình debug với số epoch nhỏ.
 
 ### 5.3. Confusion matrix
 
@@ -109,9 +120,9 @@ Chèn hình `confusion_matrix.png`.
 
 Nhận xét:
 
-- Những lớp nào dễ phân loại?
-- Những lớp nào dễ bị nhầm?
-- Có thể do đặc trưng âm thanh, độ dài clip, nhiễu nền, hay mất cân bằng dữ liệu?
+- Một số lớp như drilling và jackhammer có thể dễ bị nhầm do đặc trưng âm thanh tương đối giống nhau.
+- Các lớp chứa nhiều nhiễu nền hoặc âm thanh liên tục cũng dễ gây nhầm lẫn.
+- Nguyên nhân có thể đến từ đặc trưng âm thanh tương tự, độ dài clip ngắn và dữ liệu môi trường có nhiều noise.
 
 ---
 
@@ -120,7 +131,7 @@ Nhận xét:
 Dán link W&B:
 
 ```text
-https://wandb.ai/...
+https://wandb.ai/ngoquanglinh2853-none/csc4005-lab3-urbansound-1dcnn?nw=nwuserngoquanglinh2853
 ```
 
 Ảnh chụp hoặc mô tả dashboard cần có:
@@ -136,12 +147,23 @@ https://wandb.ai/...
 
 Trả lời ngắn các câu hỏi:
 
-1. Vì sao dùng 1D-CNN thay vì MLP cho chuỗi đặc trưng audio?
-2. Kernel 1D trong bài này đang trượt theo chiều nào?
-3. MFCC giúp mô hình học dễ hơn raw waveform ở điểm nào?
-4. Mô hình hiện tại còn hạn chế gì?
-5. Có thể cải thiện kết quả bằng cách nào?
-
+1.Vì sao dùng 1D-CNN thay vì MLP cho chuỗi đặc trưng audio?
+1D-CNN có khả năng học các pattern cục bộ theo thời gian của chuỗi audio, trong khi MLP không tận dụng được cấu trúc thời gian của dữ liệu.
+2.Kernel 1D trong bài này đang trượt theo chiều nào?
+Kernel Conv1D trượt theo chiều thời gian của chuỗi MFCC.
+3.MFCC giúp mô hình học dễ hơn raw waveform ở điểm nào?
+MFCC đã tóm tắt thông tin phổ âm thanh thành dạng đặc trưng gọn hơn nên mô hình học nhanh và ổn định hơn so với waveform thô.
+4.Mô hình hiện tại còn hạn chế gì?
+Accuracy chưa cao.
+Một số lớp âm thanh dễ bị nhầm.
+Dataset có nhiều nhiễu nền.
+Mô hình còn khá nhỏ nên khả năng biểu diễn còn hạn chế.
+5Có thể cải thiện kết quả bằng cách nào?
+Train nhiều epoch hơn.
+Tăng dữ liệu train.
+Dùng log-mel thay cho MFCC.
+Áp dụng augmentation mạnh hơn.
+Sử dụng mô hình sâu hơn hoặc raw waveform CNN.
 ---
 
 ## 8. Bài mở rộng nếu có
@@ -158,4 +180,8 @@ Nếu làm raw waveform hoặc log-mel, điền bảng sau:
 
 ## 9. Kết luận
 
-Tóm tắt 3–5 ý chính học được từ lab.
+- Bài lab giúp hiểu quy trình phân loại âm thanh bằng Deep Learning.
+- MFCC là đặc trưng phù hợp cho bài toán audio classification cơ bản.
+- 1D-CNN có khả năng học các pattern thay đổi theo thời gian của âm thanh.
+- W&B hỗ trợ theo dõi learning curves và so sánh các thí nghiệm hiệu quả.
+- Việc phân tích confusion matrix giúp hiểu rõ mô hình đang nhầm ở những lớp nào và nguyên nhân gây lỗi.
